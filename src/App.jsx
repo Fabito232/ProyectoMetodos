@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import agenteImg from './assets/gerente.png';
-import { db } from '../src/data/db.js';
-import Persona from './Persona.jsx';
+import Persona from './Persona';
+import { db } from '../src/data/db';
 
 function App() {
   const [cola, setCola] = useState([]);
@@ -11,16 +11,28 @@ function App() {
   const [colaTiempos, setColaTiempos] = useState([]);
 
   const seleccionarPersonaAleatoria = () => {
-    const indiceAleatorio = Math.floor(Math.random() * db.length);
-    return db[indiceAleatorio];
+    let persona;
+    let bandera = true;
+    console.log("cola", cola)
+    while (bandera) {
+      const indiceAleatorio = Math.floor(Math.random() * db.length);
+      persona = db[indiceAleatorio];
+      if (!cola.some(p => 
+        p.id === persona.id
+      )) {
+        bandera = false;
+      }
+    }
+    return persona;
   };
 
-  const nuevaLlamada = ()  => {
+  const nuevaLlamada = () => {
     const nuevaPersona = seleccionarPersonaAleatoria();
     if (!personaLlamada) {
       setPersonaLlamada(nuevaPersona);
       setTiempoLlamada(0);
     } else {
+      console.log("agregar pers")
       setCola(prevCola => [...prevCola, nuevaPersona]);
       setColaTiempos(prevTiempos => [...prevTiempos, 0]);
     }
@@ -44,7 +56,7 @@ function App() {
     if (simulacionActiva) {
       intervaloLlamadas = setInterval(() => {
         nuevaLlamada();
-      }, 5000); 
+      }, 5000);
     }
 
     return () => {
@@ -74,7 +86,10 @@ function App() {
 
   return (
     <div>
-      <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" onClick={() => setSimulacionActiva(!simulacionActiva)}>
+      <button
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        onClick={() => setSimulacionActiva(!simulacionActiva)}
+      >
         {simulacionActiva ? 'Detener Simulación' : 'Iniciar Simulación'}
       </button>
       <div className="flex justify-center items-center min-h-screen">
@@ -85,15 +100,23 @@ function App() {
               <h1 className="p-3">Agente</h1>
               <img className="sm:h-40 md:h-48 mx-auto" src={agenteImg} alt="Logo" />
               <div className="bg-yellow-200 border-4 border-red-500 rounded-lg m-3">
-                <h1 className="text-left p-3">{personaLlamada ? `Atendiendo a: ${personaLlamada.nombre}` : 'Agente Libre'}</h1>
+                <h1 className="text-left p-3">
+                  {personaLlamada ? `Atendiendo a: ${personaLlamada.nombre}` : 'Agente Libre'}
+                </h1>
                 {personaLlamada && (
                   <div>
-                    <img className="sm:h-40 md:h-48 mx-auto" src={`/img/${personaLlamada.imagen}.png`} alt="Persona Atendiendo" />
+                    <img
+                      className="sm:h-40 md:h-48 mx-auto"
+                      src={`/img/${personaLlamada.imagen}.png`}
+                      alt="Persona Atendiendo"
+                    />
                     <p>Tiempo en llamada: {tiempoLlamada} segundos</p>
                   </div>
                 )}
               </div>
-              <button onClick={finalizarLlamada} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Finalizar Llamada</button>
+              <button onClick={finalizarLlamada} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
+                Finalizar Llamada
+              </button>
             </div>
 
             <div className="bg-red-400">
