@@ -20,6 +20,11 @@ function App() {
   const [simulacionFinalizada, setSimulacionFinalizada] = useState(false);
   const [utilizacionPromedio, setUtilizacionPromedio] = useState(0);
   const [probabilidadSistemaVacio, setProbabilidadSistemaVacio] = useState(0);
+  const [Lq, setLq] = useState(0);
+  const [L, setL] = useState(0);
+  const [Pw, setPw] = useState(0);
+  const [Wq, setWq] = useState(0);
+  const [W, setW] = useState(0);
 
   const seleccionarPersonaAleatoria = () => {
     const indiceAleatorio = Math.floor(Math.random() * db.length);
@@ -73,7 +78,7 @@ function App() {
   useEffect(() => {
     let intervaloLlamadas;
     if (simulacionActiva && tasaLlegada > 0) {
-      const intervalo = 60000 / tasaLlegada; // Calcula el intervalo en milisegundos
+      const intervalo = 60000 / tasaLlegada;
       intervaloLlamadas = setInterval(() => {
         nuevaLlamada();
       }, intervalo);
@@ -87,12 +92,12 @@ function App() {
   useEffect(() => {
     let intervalosCronometro = [];
     if (simulacionActiva && tasaServicio > 0) {
-      const intervaloServicio = 60000 / tasaServicio; // Calcula el intervalo en milisegundos
+      const intervaloServicio = 60000 / tasaServicio;
       intervalosCronometro = agentes.map((_, index) =>
         setInterval(() => {
           setTiemposLlamada(prev => {
             const nuevosTiempos = [...prev];
-            if (nuevosTiempos[index] >= intervaloServicio / 1000) { // Convierte milisegundos a segundos
+            if (nuevosTiempos[index] >= intervaloServicio / 1000) { 
               finalizarLlamada(index);
             }
             nuevosTiempos[index] += 1;
@@ -123,8 +128,15 @@ function App() {
             clearInterval(intervaloSimulacion);
             setSimulacionActiva(false);
             setSimulacionFinalizada(true);
-            setUtilizacionPromedio(tasaLlegada / (numeroServidores * tasaServicio));
-            setProbabilidadSistemaVacio(calcular_P0(tasaLlegada, tasaServicio, numeroServidores));
+            const utilizacion = tasaLlegada / (numeroServidores * tasaServicio);
+            const p0 = calcularP0(tasaLlegada, tasaServicio, numeroServidores);
+            setUtilizacionPromedio(utilizacion);
+            setProbabilidadSistemaVacio(p0);
+            setLq(calcularLq(tasaLlegada, tasaServicio, numeroServidores));
+            setL(calcularL(tasaLlegada, tasaServicio, numeroServidores));
+            setPw(calcularPw(tasaLlegada, tasaServicio, numeroServidores));
+            setWq(calcularWq(tasaLlegada, tasaServicio, numeroServidores));
+            setW(calcularW(tasaLlegada, tasaServicio, numeroServidores));
             return 0;
           }
           return prev + 1;
@@ -160,7 +172,7 @@ function App() {
     setSimulacionFinalizada(false);
   };
 
-  const calcular_P0 = (tasaLlegada, tasaServicio, numServidores) => {
+  const calcularP0 = (tasaLlegada, tasaServicio, numServidores) => {
     const calcular_P = (tasaLlegada, tasaServicio, numServidores) => {
       return tasaLlegada / (numServidores * tasaServicio);
     };
@@ -169,9 +181,12 @@ function App() {
       Math.pow(tasaLlegada / tasaServicio, n) / math.factorial(n)
     ).reduce((acc, val) => acc + val, 0);
 
-    const ultimoTermino = Math.pow(tasaLlegada / tasaServicio, numServidores) / math.factorial(numServidores) * (1 / (1 - calcular_P(tasaLlegada, tasaServicio, numServidores)));
+    const segundoTermino =
+      (Math.pow(tasaLlegada / tasaServicio, numServidores) /
+        math.factorial(numServidores)) *
+      (1 / (1 - calcular_P(tasaLlegada, tasaServicio, numServidores)));
 
-    return 1 / (sumatoria + ultimoTermino);
+    return 1 / (sumatoria + segundoTermino);
   };
 
   return (
@@ -237,6 +252,11 @@ function App() {
                 <h1 className="text-3xl mb-4">Simulación Finalizada</h1>
                 <p>Utilización promedio del sistema (p): {(utilizacionPromedio * 100).toFixed(2)}%</p>
                 <p>Probabilidad de que el sistema esté vacío (P0): {(probabilidadSistemaVacio * 100).toFixed(2)}%</p>
+                <p>Cantidad promedio de clientes en cola (Lq): {Lq.toFixed(2)}</p>
+                <p>Cantidad promedio de clientes en el sistema (L): {L.toFixed(2)}</p>
+                <p>Probabilidad de que un cliente tenga que esperar (Pw): {(Pw * 100).toFixed(2)}%</p>
+                <p>Tiempo promedio en cola (Wq): {Wq.toFixed(2)} segundos</p>
+                <p>Tiempo promedio transcurrido en el sistema (W): {W.toFixed(2)} segundos</p>
                 <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded" onClick={volverVentanaInicial}>
                   Volver a Configuración
                 </button>
