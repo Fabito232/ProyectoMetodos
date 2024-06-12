@@ -78,7 +78,7 @@ function App() {
   useEffect(() => {
     let intervaloLlamadas;
     if (simulacionActiva && tasaLlegada > 0) {
-      const intervalo = 60000 / tasaLlegada;
+      const intervalo = 60000 / tasaLlegada; // Calcula el intervalo en milisegundos
       intervaloLlamadas = setInterval(() => {
         nuevaLlamada();
       }, intervalo);
@@ -92,12 +92,12 @@ function App() {
   useEffect(() => {
     let intervalosCronometro = [];
     if (simulacionActiva && tasaServicio > 0) {
-      const intervaloServicio = 60000 / tasaServicio;
+      const intervaloServicio = 60000 / tasaServicio; // Calcula el intervalo en milisegundos
       intervalosCronometro = agentes.map((_, index) =>
         setInterval(() => {
           setTiemposLlamada(prev => {
             const nuevosTiempos = [...prev];
-            if (nuevosTiempos[index] >= intervaloServicio / 1000) { 
+            if (nuevosTiempos[index] >= intervaloServicio / 1000) { // Convierte milisegundos a segundos
               finalizarLlamada(index);
             }
             nuevosTiempos[index] += 1;
@@ -181,12 +181,9 @@ function App() {
       Math.pow(tasaLlegada / tasaServicio, n) / math.factorial(n)
     ).reduce((acc, val) => acc + val, 0);
 
-    const segundoTermino =
-      (Math.pow(tasaLlegada / tasaServicio, numServidores) /
-        math.factorial(numServidores)) *
-      (1 / (1 - calcular_P(tasaLlegada, tasaServicio, numServidores)));
+    const ultimoTermino = Math.pow(tasaLlegada / tasaServicio, numServidores) / math.factorial(numServidores) * (1 / (1 - calcular_P(tasaLlegada, tasaServicio, numServidores)));
 
-    return 1 / (sumatoria + segundoTermino);
+    return 1 / (sumatoria + ultimoTermino);
   };
 
   return (
