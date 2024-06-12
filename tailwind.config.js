@@ -3,11 +3,14 @@ export default {
   content: [
     "./index.html",
     "./src/App.jsx",
-    "./src/Persona.jsx"
+    "./src/Persona.jsx",
+    "./src/components/ModalDatosEntrada.jsx"
 
   ],
   theme: {
-    extend: {},
+    extend: {
+      backgroundImage: {"fondoInicial": "url('./assets/colaInicio.png')"}
+    },
   },
   plugins: [],
 }
