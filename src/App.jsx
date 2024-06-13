@@ -5,6 +5,7 @@ import Persona from './components/Persona.jsx';
 import ModalDatosEntrada from './components/ModalDatosEntrada.jsx';
 import {calcularP,calcularP0, calcularLq, calcularL, calcularPw, calcularWq, calcularW } from './data/metodosCola.js';
 import Graficos from './components/Graficos.jsx';
+import * as Math from 'mathjs';
 
 function App() {
   const [cola, setCola] = useState([]);
@@ -48,10 +49,15 @@ function App() {
 
   const seleccionarPersonaAleatoria = () => {
     const indiceAleatorio = Math.floor(Math.random() * db.length);
-    
     return db[indiceAleatorio];
   };
- 
+
+  const generarExponencial = (tasa) => {
+    const calculo =-Math.log(1.0 - Math.random()) / tasa
+    console.log(calculo)
+    return calculo;
+  };
+ /////////////////////////////////////////////////////////////////
   const nuevaLlamada  = useCallback( () => {
     const nuevaPersona = seleccionarPersonaAleatoria();
     const agenteLibre = agentes.findIndex(agente => agente.personaLlamada === null);
@@ -96,30 +102,58 @@ function App() {
     }
   },[agentes, cola]);
 
-  useEffect(() => {
-    let intervaloLlamadas;
-    if (simulacionActiva && tasaLlegada > 0) {
-      const intervalo = 60000 / tasaLlegada;
-      intervaloLlamadas = setInterval(() => {
-        nuevaLlamada();
-      }, intervalo);
-    }
 
-    return () => {
-      clearInterval(intervaloLlamadas);
-    };
+  //Intervalos de llamadas
+  // useEffect(() => {
+  //   let intervaloLlamadas;
+  //   if (simulacionActiva && tasaLlegada > 0) {
+  //     const intervalo = 60000 / tasaLlegada;
+  //     intervaloLlamadas = setInterval(() => {
+  //       nuevaLlamada();
+  //     }, intervalo);
+  //   }
+
+  //   return () => {
+  //     clearInterval(intervaloLlamadas);
+  //   };
+  // }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
+  
+  useEffect(() => {
+    if (simulacionActiva && tasaLlegada > 0) {
+      setTimeout(nuevaLlamada, generarExponencial(tasaLlegada) * 60000);
+    }
   }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
 
+
+  //Intervalos para reinciar los tiempos
+  // useEffect(() => {
+  //   let intervalosCronometro = [];
+  //   if (simulacionActiva && tasaServicio > 0) {
+  //     const intervaloServicio = 60000 / tasaServicio;
+  //     intervalosCronometro = agentes.map((_, index) =>
+  //       setInterval(() => {
+  //         setTiemposLlamada(prev => {
+  //           const nuevosTiempos = [...prev];
+  //           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+  //             finalizarLlamada(index);
+  //           }
+  //           nuevosTiempos[index] += 1;
+  //           return nuevosTiempos;
+  //         });
+  //       }, 1000)
+  //     );
+  //   }
+  //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
+  // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
 
   useEffect(() => {
     let intervalosCronometro = [];
     if (simulacionActiva && tasaServicio > 0) {
-      const intervaloServicio = 60000 / tasaServicio;
       intervalosCronometro = agentes.map((_, index) =>
         setInterval(() => {
           setTiemposLlamada(prev => {
             const nuevosTiempos = [...prev];
-            if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+            if (nuevosTiempos[index] >= (generarExponencial(tasaServicio) * 60)) {
               finalizarLlamada(index);
             }
             nuevosTiempos[index] += 1;
@@ -129,9 +163,9 @@ function App() {
       );
     }
     return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
-  }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
+  }, [simulacionActiva, tasaServicio, agentes, finalizarLlamada]);
 
-
+///los timepos de las colas
   useEffect(() => {
     let intervaloCola;
     if (cola.length > 0) {
@@ -142,7 +176,7 @@ function App() {
     return () => clearInterval(intervaloCola);
   }, [cola]);
 
-
+////Tiempo simulacion
   useEffect(() => {
     let intervaloSimulacion;
     if (simulacionActiva) {
@@ -163,7 +197,7 @@ function App() {
     return () => clearInterval(intervaloSimulacion);
   }, [simulacionActiva, duracionSimulacion]);
 
-
+/////////////////////////////////////////////////////////////////
 
   useEffect(() =>{
     if(simulacionActiva){
@@ -205,6 +239,11 @@ function App() {
     setNumeroServidores(0);
     setTasaServicio(0);
     setTasaLlegada(0);
+    setTiempoSimulacion(0);
+    setCola([]);
+    setColaTiempos([]);
+    setAgentes([]);
+    setTiemposLlamada([]);
   }
 
   return (
@@ -253,7 +292,6 @@ function App() {
                         />
                       </div>
                     </div>
-
                     ) : (
                       <>
                       <h1 className="text-3xl mb-4">Simulación en Proceso</h1>
