@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import agenteImg from './assets/gerente.png';
-import { db } from '../src/data/db.js';
+import { db } from './data/db.js';
 import Persona from './components/Persona.jsx';
 import ModalDatosEntrada from './components/ModalDatosEntrada.jsx';
-import {calcularP,calcularP0, calcularLq, calcularL, calcularPw, calcularWq, calcularW } from './data/metodosCola.js';
+import { calcularP, calcularP0, calcularLq, calcularL, calcularPw, calcularWq, calcularW } from './data/metodosCola.js';
 import Graficos from './components/Graficos.jsx';
 import * as Math from 'mathjs';
 
@@ -26,7 +26,7 @@ function App() {
   const [tiempoPromedioCola, setTiempoPromedioCola] = useState(0);
   const [tiempoPromedioSistema, setTiempoPromedioSistema] = useState(0);
 
-//---------Modal--------------------
+  //---------Modal--------------------
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [tasaLlegada, setTasaLlegada] = useState(0);
   const [tasaServicio, setTasaServicio] = useState(0);
@@ -45,21 +45,24 @@ function App() {
   const cerrarModal = () => {
     setModalIsOpen(false);
   };
-///////////////////////////////
+  ///////////////////////////////
 
   const seleccionarPersonaAleatoria = () => {
-    const indiceAleatorio = Math.floor(Math.random() * db.length);
+    let indiceAleatorio = Math.floor(Math.random() * db.length);
     return db[indiceAleatorio];
   };
 
   const generarExponencial = (tasa) => {
-    const calculo =-Math.log(1.0 - Math.random()) / tasa
-    console.log(calculo)
+    const calculo = -Math.log(1.0 - Math.random()) / tasa
     return calculo;
   };
- /////////////////////////////////////////////////////////////////
-  const nuevaLlamada  = useCallback( () => {
-    const nuevaPersona = seleccionarPersonaAleatoria();
+  /////////////////////////////////////////////////////////////////
+  const nuevaLlamada = useCallback(() => {
+    let nuevaPersona = seleccionarPersonaAleatoria();
+
+    while (agentes.some(agente => agente.personaLlamada?.id === nuevaPersona.id)) {
+      nuevaPersona = seleccionarPersonaAleatoria();
+    }
     const agenteLibre = agentes.findIndex(agente => agente.personaLlamada === null);
 
     if (agenteLibre !== -1) {
@@ -75,11 +78,15 @@ function App() {
       setCola(prevCola => [...prevCola, nuevaPersona]);
       setColaTiempos(prevTiempos => [...prevTiempos, 0]);
     }
-  },[agentes]);
+  }, [agentes]);
 
   const finalizarLlamada = useCallback((index) => {
     if (cola.length > 0) {
       const siguientePersona = cola[0];
+      if (agentes[index].personaLlamada.id === siguientePersona.id) {
+        setCola(prevCola => prevCola.slice(1));
+        setColaTiempos(prevTiempos => prevTiempos.slice(1));
+      }
       setCola(prevCola => prevCola.slice(1));
       setColaTiempos(prevTiempos => prevTiempos.slice(1));
       const nuevosAgentes = [...agentes];
@@ -100,51 +107,13 @@ function App() {
         return nuevosTiempos;
       });
     }
-  },[agentes, cola]);
+  }, [agentes, cola]);
 
-
-  //Intervalos de llamadas
-  // useEffect(() => {
-  //   let intervaloLlamadas;
-  //   if (simulacionActiva && tasaLlegada > 0) {
-  //     const intervalo = 60000 / tasaLlegada;
-  //     intervaloLlamadas = setInterval(() => {
-  //       nuevaLlamada();
-  //     }, intervalo);
-  //   }
-
-  //   return () => {
-  //     clearInterval(intervaloLlamadas);
-  //   };
-  // }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
-  
   useEffect(() => {
     if (simulacionActiva && tasaLlegada > 0) {
-      setTimeout(nuevaLlamada, generarExponencial(tasaLlegada) * 60000);
+      setTimeout(nuevaLlamada, generarExponencial(((tasaLlegada) * 60000) * 60));
     }
   }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
-
-
-  //Intervalos para reinciar los tiempos
-  // useEffect(() => {
-  //   let intervalosCronometro = [];
-  //   if (simulacionActiva && tasaServicio > 0) {
-  //     const intervaloServicio = 60000 / tasaServicio;
-  //     intervalosCronometro = agentes.map((_, index) =>
-  //       setInterval(() => {
-  //         setTiemposLlamada(prev => {
-  //           const nuevosTiempos = [...prev];
-  //           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
-  //             finalizarLlamada(index);
-  //           }
-  //           nuevosTiempos[index] += 1;
-  //           return nuevosTiempos;
-  //         });
-  //       }, 1000)
-  //     );
-  //   }
-  //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
-  // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
 
   useEffect(() => {
     let intervalosCronometro = [];
@@ -165,7 +134,7 @@ function App() {
     return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
   }, [simulacionActiva, tasaServicio, agentes, finalizarLlamada]);
 
-///los timepos de las colas
+  ///los timepos de las colas
   useEffect(() => {
     let intervaloCola;
     if (cola.length > 0) {
@@ -176,7 +145,7 @@ function App() {
     return () => clearInterval(intervaloCola);
   }, [cola]);
 
-////Tiempo simulacion
+  ////Tiempo simulacion
   useEffect(() => {
     let intervaloSimulacion;
     if (simulacionActiva) {
@@ -197,10 +166,9 @@ function App() {
     return () => clearInterval(intervaloSimulacion);
   }, [simulacionActiva, duracionSimulacion]);
 
-/////////////////////////////////////////////////////////////////
-
-  useEffect(() =>{
-    if(simulacionActiva){
+  /////////////////////////////////////////////////////////////////
+  useEffect(() => {
+    if (simulacionActiva) {
       setUtilizacionPromedio(calcularP(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadSistemaVacio(calcularP0(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadClienteEspere(calcularPw(tasaLlegada, tasaServicio, numeroServidores) * 100);
@@ -209,10 +177,10 @@ function App() {
       setTiempoPromedioCola(calcularWq(tasaLlegada, tasaServicio, numeroServidores) * 60);
       setTiempoPromedioSistema(calcularW(tasaLlegada, tasaServicio, numeroServidores) * 60);
     }
-  },[tasaLlegada, tasaServicio, numeroServidores, simulacionActiva])
+  }, [tasaLlegada, tasaServicio, numeroServidores, simulacionActiva])
 
   const iniciarSimulacion = () => {
-    if ( duracionSimulacion > 0 && tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
+    if (duracionSimulacion > 0 && tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
       const inicializarAgentes = Array.from({ length: numeroServidores }, () => ({ personaLlamada: null }));
       setAgentes(inicializarAgentes);
       setTiemposLlamada(Array(numeroServidores).fill(0));
@@ -248,64 +216,64 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-           <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
-          {simulacionFinalizada ? (
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
-               <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
-                <Graficos
-                   utilizacionPromedio={utilizacionPromedio}
-                   probabilidadSistemaVacio={probabilidadSistemaVacio}
-                   promedioClienteCola={promedioClienteCola}
-                   promedioClienteSistema={promedioClienteSistema}
-                   probabilidadClienteEspere={probabilidadClienteEspere}
-                   tiempoPromedioCola={tiempoPromedioCola}
-                   tiempoPromedioSistema={tiempoPromedioSistema}
-                />
-                <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded ml-5" onClick={salirDelPrograma}>
-                  Volver al inicio
-                </button>
-                <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded ml-5" onClick={iniciarSimulacion}>
-                  Volver a la simulacion
-                </button>
-              </div>
+      <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
+        {simulacionFinalizada ? (
+          <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
+              <Graficos
+                utilizacionPromedio={utilizacionPromedio}
+                probabilidadSistemaVacio={probabilidadSistemaVacio}
+                promedioClienteCola={promedioClienteCola}
+                promedioClienteSistema={promedioClienteSistema}
+                probabilidadClienteEspere={probabilidadClienteEspere}
+                tiempoPromedioCola={tiempoPromedioCola}
+                tiempoPromedioSistema={tiempoPromedioSistema}
+              />
+              <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded ml-5" onClick={salirDelPrograma}>
+                Volver al inicio
+              </button>
+              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded ml-5" onClick={iniciarSimulacion}>
+                Volver a la simulacion
+              </button>
             </div>
-          ) : (
-            <div className="flex justify-center items-center min-h-screen  bg-gray-100">
-              <div className="container mx-auto text-center ">
-                <div> 
-                  {!simulacionActiva ? (
-                   <div className="flex justify-center items-center bg-gray-100 ">
-                      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-                        <h1 className="text-3xl font-bold mb-4 text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
-                        <div className="flex justify-between">
-                          <button className="w-full mt-4 px-4 py-2 mr-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300" onClick={iniciarSimulacion}>
-                            Iniciar Simulación
-                          </button>
-                          <button className="w-full mt-4 px-4 py-4 ml-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-300" onClick={abrirModal}>
-                            Agregar Datos 
-                          </button>
-                        </div>
-                        <ModalDatosEntrada
-                          isOpen={modalIsOpen}
-                          cerrar={cerrarModal}
-                          agregarDatosEntrada={agregarDatosEntrada}
-                        />
+          </div>
+        ) : (
+          <div className="flex justify-center items-center min-h-screen  bg-gray-100">
+            <div className="container mx-auto text-center ">
+              <div>
+                {!simulacionActiva ? (
+                  <div className="flex justify-center items-center bg-gray-100 ">
+                    <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
+                      <h1 className="text-3xl font-bold mb-4 text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
+                      <div className="flex justify-between">
+                        <button className="w-full mt-4 px-4 py-2 mr-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300" onClick={iniciarSimulacion}>
+                          Iniciar Simulación
+                        </button>
+                        <button className="w-full mt-4 px-4 py-4 ml-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-300" onClick={abrirModal}>
+                          Agregar Datos
+                        </button>
                       </div>
+                      <ModalDatosEntrada
+                        isOpen={modalIsOpen}
+                        cerrar={cerrarModal}
+                        agregarDatosEntrada={agregarDatosEntrada}
+                      />
                     </div>
-                    ) : (
-                      <>
-                      <h1 className="text-3xl mb-4">Simulación en Proceso</h1>
-                      <button className="mt-4 px-4 py-2 mr-5 bg-red-500 text-white rounded" onClick={detenerSimulacion}>
-                        Detener Simulación
-                      </button>
-                      <div className="text-center mt-4">
-                        <p>Tiempo de simulación: {tiempoSimulacion} segundos</p>
-                      </div>
-                      </>
-                    )}
-                </div>
-                {simulacionActiva && (
-                  <div className={`grid ${agentes.length === 1 ? 'grid-cols-2' : 'grid-cols-3'}  gap-4 mt-4`}>
+                  </div>
+                ) : (
+                  <>
+                    <h1 className="text-3xl mb-4">Simulación en Proceso</h1>
+                    <button className="mt-4 px-4 py-2 mr-5 bg-red-500 text-white rounded" onClick={detenerSimulacion}>
+                      Detener Simulación
+                    </button>
+                    <div className="text-center mt-4">
+                      <p>Tiempo de simulación: {tiempoSimulacion} segundos</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {simulacionActiva && (
+                <div className={`grid ${agentes.length === 1 ? 'grid-cols-2' : 'grid-cols-3'}  gap-4 mt-4`}>
                   {agentes.map((agente, index) => (
                     <div key={index} className="bg-yellow-200 justify-center text-center items-center  m-5">
                       <h1 className="p-3 font-bold">Agente {index + 1}</h1>
@@ -319,7 +287,7 @@ function App() {
                           </div>
                         )}
                       </div>
-                      <button onClick={() => finalizarLlamada(index)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Finalizar llamada</button>
+                      <button onClick={() => finalizarLlamada(index)} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded mb-5">Finalizar llamada</button>
                     </div>
                   ))}
                   <div className="bg-red-400 m-5">
@@ -332,13 +300,49 @@ function App() {
                     ))}
                   </div>
                 </div>
-                )}
-              </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
 export default App;
+
+//Intervalos de llamadas
+// useEffect(() => {
+//   let intervaloLlamadas;
+//   if (simulacionActiva && tasaLlegada > 0) {
+//     const intervalo = 60000 / tasaLlegada;
+//     intervaloLlamadas = setInterval(() => {
+//       nuevaLlamada();
+//     }, intervalo);
+//   }
+
+//   return () => {
+//     clearInterval(intervaloLlamadas);
+//   };
+// }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
+
+//Intervalos para reinciar los tiempos
+// useEffect(() => {
+//   let intervalosCronometro = [];
+//   if (simulacionActiva && tasaServicio > 0) {
+//     const intervaloServicio = 60000 / tasaServicio;
+//     intervalosCronometro = agentes.map((_, index) =>
+//       setInterval(() => {
+//         setTiemposLlamada(prev => {
+//           const nuevosTiempos = [...prev];
+//           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+//             finalizarLlamada(index);
+//           }
+//           nuevosTiempos[index] += 1;
+//           return nuevosTiempos;
+//         });
+//       }, 1000)
+//     );
+//   }
+//   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
+// }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
