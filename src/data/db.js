@@ -38,5 +38,25 @@ export const db = [
         id: 8,
         nombre:'Monica',
         imagen: 'person_8'
+    },
+    {
+        id: 9,
+        nombre:'Allan',
+        imagen: 'person_9'
+    },
+    {
+        id: 10,
+        nombre:'Isaac',
+        imagen: 'person_10'
+    },
+    {
+        id: 11,
+        nombre:'Raquel',
+        imagen: 'person_11'
+    },
+    {
+        id: 12,
+        nombre:'Iyubanit',
+        imagen: 'person_12'
     }
 ]
