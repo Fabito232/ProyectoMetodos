@@ -38,15 +38,15 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
     labels: ['Tiempo promedio en cola (Wq)', 'Tiempo promedio en el sistema (W)'],
     datasets: [
       {
-        label: 'Tiempos',
+        label: 'Tiempos (minutos)',
         data: [tiempoPromedioCola, tiempoPromedioSistema],
         backgroundColor: [
           'rgba(255, 159, 64, 0.2)',
-          'rgba(255, 99, 132, 0.2)'
+          'rgba(255, 159, 64, 0.2)',
         ],
         borderColor: [
           'rgba(255, 159, 64, 1)',
-          'rgba(255, 99, 132, 1)'
+          'rgba(255, 159, 64, 1)',
         ],
         borderWidth: 1
       }
@@ -58,15 +58,15 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
     labels: ['Número promedio de llamadas en cola (Lq)', 'Número promedio de llamadas en el sistema (L)'],
     datasets: [
       {
-        label: 'Promedios',
+        label: 'Promedios (Llamadas)',
         data: [promedioClienteCola, promedioClienteSistema],
         backgroundColor: [
           'rgba(54, 162, 235, 0.2)',
-          'rgba(75, 192, 192, 0.2)'
+          'rgba(54, 162, 235, 0.2)',
         ],
         borderColor: [
           'rgba(54, 162, 235, 1)',
-          'rgba(75, 192, 192, 1)'
+          'rgba(54, 162, 235, 1)',
         ],
         borderWidth: 1
       }
@@ -75,18 +75,18 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
 
   // Datos para el gráfico de Probabilidades
   const dataBarProbabilidades = {
-    labels: ['Probabilidad de que el sistema esté vacío', 'Probabilidad de esperar (Pw)'],
+    labels: ['Probabilidad de que el sistema esté vacío', 'Probabilidad de que una persona tenga que esperar (Pw)'],
     datasets: [
       {
-        label: 'Probabilidades',
+        label: 'Probabilidades (%)',
         data: [probabilidadSistemaVacio, probabilidadClienteEspere],
         backgroundColor: [
           'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 206, 86, 0.2)'
+          'rgba(153, 102, 255, 0.2)',
         ],
         borderColor: [
           'rgba(153, 102, 255, 1)',
-          'rgba(255, 206, 86, 1)'
+          'rgba(153, 102, 255, 1)',
         ],
         borderWidth: 1
       }
@@ -95,7 +95,7 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
 console.log(utilizacionPromedio)
   // Datos para el gráfico de Pastel
   const dataPieUtilizacion = {
-    labels: ['Utilización del sistema', 'Tiempo no utilizado'],
+    labels: ['Utilización del sistema (%)', 'No utilizado'],
     datasets: [
       {
         data: [utilizacionPromedio, (100 - utilizacionPromedio)],
@@ -159,19 +159,15 @@ console.log(utilizacionPromedio)
   return (
     <div className="grid grid-cols-2 gap-4 p-4">
     <div className="p-4">
-      <h2 className="text-center text-lg font-semibold">Tiempos</h2>
       <Bar data={dataBarTiempos} options={optionsBar} />
     </div>
     <div className="p-4">
-      <h2 className="text-center text-lg font-semibold">Promedios</h2>
       <Bar data={dataBarPromedios} options={optionsBar} />
     </div>
     <div className="p-4">
-      <h2 className="text-center text-lg font-semibold">Probabilidades</h2>
       <Bar data={dataBarProbabilidades} options={optionsBar} />
     </div>
     <div className="p-4">
-      <h2 className="text-center text-lg font-semibold">Utilización</h2>
       <Pie data={dataPieUtilizacion} options={optionsPie} />
     </div>
   </div>

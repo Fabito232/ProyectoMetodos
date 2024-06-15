@@ -6,6 +6,8 @@ import ModalDatosEntrada from './components/ModalDatosEntrada.jsx';
 import {calcularP,calcularP0, calcularLq, calcularL, calcularPw, calcularWq, calcularW } from './data/metodosCola.js';
 import Graficos from './components/Graficos.jsx';
 import * as Math from 'mathjs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
   const [cola, setCola] = useState([]);
@@ -103,21 +105,6 @@ function App() {
   },[agentes, cola]);
 
 
-  //Intervalos de llamadas
-  // useEffect(() => {
-  //   let intervaloLlamadas;
-  //   if (simulacionActiva && tasaLlegada > 0) {
-  //     const intervalo = 60000 / tasaLlegada;
-  //     intervaloLlamadas = setInterval(() => {
-  //       nuevaLlamada();
-  //     }, intervalo);
-  //   }
-
-  //   return () => {
-  //     clearInterval(intervaloLlamadas);
-  //   };
-  // }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
-  
   useEffect(() => {
     if (simulacionActiva && tasaLlegada > 0) {
       setTimeout(nuevaLlamada, generarExponencial(tasaLlegada) * 60000);
@@ -125,26 +112,7 @@ function App() {
   }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
 
 
-  //Intervalos para reinciar los tiempos
-  // useEffect(() => {
-  //   let intervalosCronometro = [];
-  //   if (simulacionActiva && tasaServicio > 0) {
-  //     const intervaloServicio = 60000 / tasaServicio;
-  //     intervalosCronometro = agentes.map((_, index) =>
-  //       setInterval(() => {
-  //         setTiemposLlamada(prev => {
-  //           const nuevosTiempos = [...prev];
-  //           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
-  //             finalizarLlamada(index);
-  //           }
-  //           nuevosTiempos[index] += 1;
-  //           return nuevosTiempos;
-  //         });
-  //       }, 1000)
-  //     );
-  //   }
-  //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
-  // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
+
 
   useEffect(() => {
     let intervalosCronometro = [];
@@ -219,7 +187,7 @@ function App() {
       setSimulacionActiva(true);
       setSimulacionFinalizada(false);
     } else {
-      alert('Todos los valores deben ser mayores a 0 y el número de servidores debe estar entre 1 y 3.');
+      alert('Todos los valores deben ser mayores a 0 y el número de servidores debe ser 1 o 2 como maximo.');
     }
   };
 
@@ -246,12 +214,22 @@ function App() {
     setTiemposLlamada([]);
   }
 
+  const abriInforme = () => {
+    window.open('/Teoria _de_colas.pdf', '_blank');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
            <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
           {simulacionFinalizada ? (
             <div className="flex justify-center items-center min-h-screen bg-gray-100">
                <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
+                <div className="flex justify-end"> 
+                <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-5" onClick={abriInforme}>
+                  Informe Gerencial
+                  <FontAwesomeIcon icon={ faFilePdf} className="ml-2" />
+                </button>
+                </div>
                 <Graficos
                    utilizacionPromedio={utilizacionPromedio}
                    probabilidadSistemaVacio={probabilidadSistemaVacio}
@@ -262,11 +240,12 @@ function App() {
                    tiempoPromedioSistema={tiempoPromedioSistema}
                 />
                 <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded ml-5" onClick={salirDelPrograma}>
-                  Volver al inicio
+                  Salir
                 </button>
                 <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded ml-5" onClick={iniciarSimulacion}>
                   Volver a la simulacion
                 </button>
+            
               </div>
             </div>
           ) : (
@@ -342,3 +321,41 @@ function App() {
 }
 
 export default App;
+
+
+  //Intervalos de llamadas
+  // useEffect(() => {
+  //   let intervaloLlamadas;
+  //   if (simulacionActiva && tasaLlegada > 0) {
+  //     const intervalo = 60000 / tasaLlegada;
+  //     intervaloLlamadas = setInterval(() => {
+  //       nuevaLlamada();
+  //     }, intervalo);
+  //   }
+
+  //   return () => {
+  //     clearInterval(intervaloLlamadas);
+  //   };
+  // }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
+
+    //Intervalos para reinciar los tiempos
+  // useEffect(() => {
+  //   let intervalosCronometro = [];
+  //   if (simulacionActiva && tasaServicio > 0) {
+  //     const intervaloServicio = 60000 / tasaServicio;
+  //     intervalosCronometro = agentes.map((_, index) =>
+  //       setInterval(() => {
+  //         setTiemposLlamada(prev => {
+  //           const nuevosTiempos = [...prev];
+  //           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+  //             finalizarLlamada(index);
+  //           }
+  //           nuevosTiempos[index] += 1;
+  //           return nuevosTiempos;
+  //         });
+  //       }, 1000)
+  //     );
+  //   }
+  //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
+  // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
+  
