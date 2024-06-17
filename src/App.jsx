@@ -8,6 +8,7 @@ import Graficos from './components/Graficos.jsx';
 import * as Math from 'mathjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import Menu from './components/Menu.jsx';
 
 function App() {
   const [cola, setCola] = useState([]);
@@ -18,6 +19,9 @@ function App() {
   const [tiempoSimulacion, setTiempoSimulacion] = useState(0);
   const [duracionSimulacion, setDuracionSimulacion] = useState(0);
   const [simulacionFinalizada, setSimulacionFinalizada] = useState(false);
+
+  //Menu
+  const [opcionMenu, setOpcionMenu] = useState(1);
 
   //-------Metodos----------------
   const [utilizacionPromedio, setUtilizacionPromedio] = useState(0);
@@ -167,7 +171,7 @@ function App() {
 /////////////////////////////////////////////////////////////////
 
   useEffect(() =>{
-    if(simulacionActiva){
+    if ( tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
       setUtilizacionPromedio(calcularP(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadSistemaVacio(calcularP0(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadClienteEspere(calcularPw(tasaLlegada, tasaServicio, numeroServidores) * 100);
@@ -191,13 +195,18 @@ function App() {
   };
 
   const detenerSimulacion = () => {
-    setSimulacionActiva(false)
-    setTiempoSimulacion(0);
-    setCola([]);
-    setColaTiempos([]);
-    setAgentes([]);
-    setTiemposLlamada([]);
-    setSimulacionFinalizada(true);
+
+    if ( duracionSimulacion > 0 && tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
+      setSimulacionActiva(false)
+      setTiempoSimulacion(0);
+      setCola([]);
+      setColaTiempos([]);
+      setAgentes([]);
+      setTiemposLlamada([]);
+      setSimulacionFinalizada(true);
+    } else {
+      alert('Todos los valores deben ser mayores a 0 y el número de servidores debe ser 1 o 2 como maximo.');
+    }
   }
 
   const salirDelPrograma = () => {
@@ -217,6 +226,18 @@ function App() {
     window.open('/Teoria _de_colas.pdf', '_blank');
   };
 
+  const agregarOpcionMenu = (opcion) => {
+    if(opcion === 1){
+      detenerSimulacion();
+    } else if(opcion === 2){
+      iniciarSimulacion()
+    } else if(opcion === 3){
+      abrirModal();
+    } else{
+      abriInforme();
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
            <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
@@ -228,7 +249,7 @@ function App() {
                   Informe Gerencial
                   <FontAwesomeIcon icon={ faFilePdf} className="ml-2" />
                 </button>
-                </div>
+                </div> 
                 <Graficos
                    utilizacionPromedio={utilizacionPromedio}
                    probabilidadSistemaVacio={probabilidadSistemaVacio}
@@ -252,24 +273,15 @@ function App() {
               <div className="container mx-auto text-center ">
                 <div> 
                   {!simulacionActiva ? (
-                   <div className="flex justify-center items-center min-h-screen  bg-fondoInicial bg-cover ">
-                      <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg">
-                        <h1 className="text-3xl font-bold mb-4 text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
-                        <div className="flex justify-between">
-                          <button className="w-full mt-4 px-4 py-2 mr-2 bg-green-500 text-white rounded hover:bg-green-600 transition duration-300" onClick={iniciarSimulacion}>
-                            Iniciar Simulación
-                          </button>
-                          <button className="w-full mt-4 px-4 py-4 ml-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-300" onClick={abrirModal}>
-                            Agregar Datos 
-                          </button>
-                        </div>
-                        <ModalDatosEntrada
-                          isOpen={modalIsOpen}
-                          cerrar={cerrarModal}
-                          agregarDatosEntrada={agregarDatosEntrada}
-                        />
-                      </div>
-                    </div>
+                  <div className="flex flex-col justify-center items-center min-h-screen bg-fondoInicial bg-cover">
+                  <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg mb-48">
+                    <h1 className="text-3xl font-bold text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
+                  </div>
+                  <div className="flex justify-center items-center">
+                    <Menu agregarOpcionMenu={agregarOpcionMenu} />
+                  </div>
+                  <ModalDatosEntrada isOpen={modalIsOpen} cerrar={cerrarModal} agregarDatosEntrada={agregarDatosEntrada} />
+                </div>
                     ) : (
                       <>
                       <h1 className="text-3xl mb-4">Simulación en Proceso</h1>

@@ -9,7 +9,7 @@ export default {
   ],
   theme: {
     extend: {
-      backgroundImage: {"fondoInicial": "url('./assets/Colas_y_Lineas_de_Espera_2.jpeg')"}
+      backgroundImage: {"fondoInicial": "url('./assets/atencion1.jpeg')"}
     },
   },
   plugins: [],
