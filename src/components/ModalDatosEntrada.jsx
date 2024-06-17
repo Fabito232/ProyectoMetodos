@@ -2,7 +2,7 @@ import { useState} from 'react';
 import Modal from 'react-modal';
 import PropTypes from 'prop-types'
 
-Modal.setAppElement('#root'); // Esto es necesario para la accesibilidad
+Modal.setAppElement('#root'); 
 
 const ModalDatosEntrada = ({ isOpen, cerrar, agregarDatosEntrada }) => {
   const [datosEntrada, setDatosEntrada] = useState({ tiempoSimulacion: 0, tasaLlegada: 0, tasaServicio: 0, servidores: 0 });
@@ -18,9 +18,13 @@ const ModalDatosEntrada = ({ isOpen, cerrar, agregarDatosEntrada }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(datosEntrada)
-    agregarDatosEntrada(datosEntrada);
-    setDatosEntrada({ tasaLlegada: 0, tasaServicio: 0, servidores: 0 });
-    cerrar();
+    if ( datosEntrada.tasaLlegada > 0 && datosEntrada.tasaServicio > 0 && datosEntrada.servidores <= 2 && datosEntrada.servidores > 0 && datosEntrada.tasaLlegada < datosEntrada.tasaServicio) {
+      agregarDatosEntrada(datosEntrada);
+      setDatosEntrada({ tasaLlegada: 0, tasaServicio: 0, servidores: 0 });
+      cerrar();
+    } else {
+      alert('Todos los valores deben ser mayores a 0 y el número de servidores debe ser 1 o 2 como maximo.');
+    }
   };
 
   return (

@@ -9,7 +9,7 @@ export default {
   ],
   theme: {
     extend: {
-      backgroundImage: {"fondoInicial": "url('./assets/colaInicio.png')"}
+      backgroundImage: {"fondoInicial": "url('./assets/atencion1.jpeg')"}
     },
   },
   plugins: [],
