@@ -389,7 +389,6 @@ function App() {
 
 export default App;
 
-<<<<<<<<< Temporary merge branch 1
 //Intervalos de llamadas
 // useEffect(() => {
 //   let intervaloLlamadas;
@@ -425,7 +424,6 @@ export default App;
 //   }
 //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
 // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
-=========
 
   //Intervalos de llamadas
   // useEffect(() => {
@@ -462,5 +460,3 @@ export default App;
   //   }
   //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
   // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
-  
->>>>>>>>> Temporary merge branch 2
