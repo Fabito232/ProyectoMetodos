@@ -6,9 +6,8 @@ import ModalDatosEntrada from './components/ModalDatosEntrada.jsx';
 import { calcularP, calcularP0, calcularLq, calcularL, calcularPw, calcularWq, calcularW } from './data/metodosCola.js';
 import Graficos from './components/Graficos.jsx';
 import * as Math from 'mathjs';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import Menu from './components/Menu.jsx';
+import InformeGerencial from './components/informe.jsx';
 
 function App() {
   const [cola, setCola] = useState([]);
@@ -19,6 +18,7 @@ function App() {
   const [tiempoSimulacion, setTiempoSimulacion] = useState(0);
   const [duracionSimulacion, setDuracionSimulacion] = useState(0);
   const [simulacionFinalizada, setSimulacionFinalizada] = useState(false);
+  const [openInforme, setOpenInforme] = useState(false);
 
   //Menu
   const [opcionMenu, setOpcionMenu] = useState(1);
@@ -174,10 +174,10 @@ function App() {
     return () => clearInterval(intervaloSimulacion);
   }, [simulacionActiva, duracionSimulacion]);
 
-/////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
 
-  useEffect(() =>{
-    if ( tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
+  useEffect(() => {
+    if (tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
       setUtilizacionPromedio(calcularP(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadSistemaVacio(calcularP0(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setProbabilidadClienteEspere(calcularPw(tasaLlegada, tasaServicio, numeroServidores) * 100);
@@ -202,7 +202,7 @@ function App() {
 
   const detenerSimulacion = () => {
 
-    if ( duracionSimulacion > 0 && tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
+    if (duracionSimulacion > 0 && tasaLlegada > 0 && tasaServicio > 0 && numeroServidores > 0) {
       setSimulacionActiva(false)
       setTiempoSimulacion(0);
       setCola([]);
@@ -228,80 +228,93 @@ function App() {
     setTiemposLlamada([]);
   }
 
-  const abriInforme = () => {
-    window.open('/Teoria _de_colas.pdf', '_blank');
+  const abrirInforme = () => {
+    setOpenInforme(true)
   };
 
   const agregarOpcionMenu = (opcion) => {
-    if(opcion === 1){
+    if (opcion === 1) {
       detenerSimulacion();
-    } else if(opcion === 2){
+    } else if (opcion === 2) {
       iniciarSimulacion()
-    } else if(opcion === 3){
+    } else if (opcion === 3) {
       abrirModal();
-    } else{
-      abriInforme();
+    } else {
+      abrirInforme();
     }
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-           <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
-          {simulacionFinalizada ? (
-            <div className="flex justify-center items-center min-h-screen bg-gray-100">
-               <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
-                <div className="flex justify-end"> 
-                <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-5" onClick={abriInforme}>
+      <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
+        {simulacionFinalizada ? (
+          <div className="flex justify-center items-center min-h-screen bg-gray-100">
+            <div className="container mx-auto text-center p-8 bg-white shadow-lg rounded-lg">
+              <div className="flex justify-end">
+                <button className="mt-4 px-4 py-2 bg-green-500 text-white rounded ml-5" onClick={abrirInforme}>
                   Informe Gerencial
-                  <FontAwesomeIcon icon={ faFilePdf} className="ml-2" />
                 </button>
-                </div> 
-                <Graficos
-                   utilizacionPromedio={utilizacionPromedio}
-                   probabilidadSistemaVacio={probabilidadSistemaVacio}
-                   promedioClienteCola={promedioClienteCola}
-                   promedioClienteSistema={promedioClienteSistema}
-                   probabilidadClienteEspere={probabilidadClienteEspere}
-                   tiempoPromedioCola={tiempoPromedioCola}
-                   tiempoPromedioSistema={tiempoPromedioSistema}
-                />
-                <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded ml-5" onClick={salirDelPrograma}>
-                  Salir
-                </button>
-                <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded ml-5" onClick={iniciarSimulacion}>
-                  Volver a la simulacion
-                </button>
-            
               </div>
+              {openInforme && (
+                <InformeGerencial
+                  open={openInforme}
+                  onClose={() => setOpenInforme(false)}
+                  agentes={numeroServidores}
+                  utilizacionPromedio={utilizacionPromedio}
+                  probabilidadSistemaVacio={probabilidadSistemaVacio}
+                  promedioClienteCola={promedioClienteCola}
+                  promedioClienteSistema={promedioClienteSistema}
+                  probabilidadClienteEspere={probabilidadClienteEspere}
+                  tiempoPromedioCola={tiempoPromedioCola}
+                  tiempoPromedioSistema={tiempoPromedioSistema}
+                />
+              )}
+              <Graficos
+                utilizacionPromedio={utilizacionPromedio}
+                probabilidadSistemaVacio={probabilidadSistemaVacio}
+                promedioClienteCola={promedioClienteCola}
+                promedioClienteSistema={promedioClienteSistema}
+                probabilidadClienteEspere={probabilidadClienteEspere}
+                tiempoPromedioCola={tiempoPromedioCola}
+                tiempoPromedioSistema={tiempoPromedioSistema}
+              />
+              <button className="mt-4 px-4 py-2 bg-gray-500 text-white rounded ml-5" onClick={salirDelPrograma}>
+                Salir
+              </button>
+              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded ml-5" onClick={iniciarSimulacion}>
+                Volver a la simulacion
+              </button>
+
             </div>
-          ) : (
-            <div className="flex justify-center items-center min-h-screen ">
-              <div className="container mx-auto text-center ">
-                <div> 
-                  {!simulacionActiva ? (
+          </div>
+        ) : (
+          <div className="flex justify-center items-center min-h-screen ">
+            <div className="container mx-auto text-center ">
+              <div>
+                {!simulacionActiva ? (
                   <div className="flex flex-col justify-center items-center min-h-screen bg-fondoInicial bg-cover">
-                  <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg mb-48">
-                    <h1 className="text-3xl font-bold text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
+                    <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-lg mb-48">
+                      <h1 className="text-3xl font-bold text-center text-gray-800">Modelos de Filas de Espera y Teoría de Colas</h1>
+                    </div>
+                    <div className="flex justify-center items-center">
+                      <Menu agregarOpcionMenu={agregarOpcionMenu} />
+                    </div>
+                    <ModalDatosEntrada isOpen={modalIsOpen} cerrar={cerrarModal} agregarDatosEntrada={agregarDatosEntrada} />
                   </div>
-                  <div className="flex justify-center items-center">
-                    <Menu agregarOpcionMenu={agregarOpcionMenu} />
-                  </div>
-                  <ModalDatosEntrada isOpen={modalIsOpen} cerrar={cerrarModal} agregarDatosEntrada={agregarDatosEntrada} />
-                </div>
-                    ) : (
-                      <>
-                      <h1 className="text-3xl mb-4">Simulación en Proceso</h1>
-                      <button className="mt-4 px-4 py-2 mr-5 bg-red-500 text-white rounded" onClick={detenerSimulacion}>
-                        Detener Simulación
-                      </button>
-                      <div className="text-center mt-4">
-                        <p>Tiempo de simulación: {tiempoSimulacion} segundos</p>
-                      </div>
-                      </>
-                    )}
-                </div>
-                {simulacionActiva && (
-                  <div className={`grid ${agentes.length === 1 ? 'grid-cols-2' : 'grid-cols-3'}  gap-4 mt-4`}>
+                ) : (
+                  <>
+                    <h1 className="text-3xl mb-4">Simulación en Proceso</h1>
+                    <button className="mt-4 px-4 py-2 mr-5 bg-red-500 text-white rounded" onClick={detenerSimulacion}>
+                      Detener Simulación
+                    </button>
+                    <div className="text-center mt-4">
+                      <p>Tiempo de simulación: {tiempoSimulacion} segundos</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {simulacionActiva && (
+                <div className={`grid ${agentes.length === 1 ? 'grid-cols-2' : 'grid-cols-3'}  gap-4 mt-4`}>
                   {agentes.map((agente, index) => (
                     <div key={index} className="bg-yellow-200 justify-center text-center items-center  m-5">
                       <h1 className="p-3 font-bold">Agente {index + 1}</h1>
@@ -340,39 +353,39 @@ function App() {
 export default App;
 
 
-  //Intervalos de llamadas
-  // useEffect(() => {
-  //   let intervaloLlamadas;
-  //   if (simulacionActiva && tasaLlegada > 0) {
-  //     const intervalo = 60000 / tasaLlegada;
-  //     intervaloLlamadas = setInterval(() => {
-  //       nuevaLlamada();
-  //     }, intervalo);
-  //   }
+//Intervalos de llamadas
+// useEffect(() => {
+//   let intervaloLlamadas;
+//   if (simulacionActiva && tasaLlegada > 0) {
+//     const intervalo = 60000 / tasaLlegada;
+//     intervaloLlamadas = setInterval(() => {
+//       nuevaLlamada();
+//     }, intervalo);
+//   }
 
-  //   return () => {
-  //     clearInterval(intervaloLlamadas);
-  //   };
-  // }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
+//   return () => {
+//     clearInterval(intervaloLlamadas);
+//   };
+// }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
 
-    //Intervalos para reinciar los tiempos
-  // useEffect(() => {
-  //   let intervalosCronometro = [];
-  //   if (simulacionActiva && tasaServicio > 0) {
-  //     const intervaloServicio = 60000 / tasaServicio;
-  //     intervalosCronometro = agentes.map((_, index) =>
-  //       setInterval(() => {
-  //         setTiemposLlamada(prev => {
-  //           const nuevosTiempos = [...prev];
-  //           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
-  //             finalizarLlamada(index);
-  //           }
-  //           nuevosTiempos[index] += 1;
-  //           return nuevosTiempos;
-  //         });
-  //       }, 1000)
-  //     );
-  //   }
-  //   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
-  // }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
-  
+//Intervalos para reinciar los tiempos
+// useEffect(() => {
+//   let intervalosCronometro = [];
+//   if (simulacionActiva && tasaServicio > 0) {
+//     const intervaloServicio = 60000 / tasaServicio;
+//     intervalosCronometro = agentes.map((_, index) =>
+//       setInterval(() => {
+//         setTiemposLlamada(prev => {
+//           const nuevosTiempos = [...prev];
+//           if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+//             finalizarLlamada(index);
+//           }
+//           nuevosTiempos[index] += 1;
+//           return nuevosTiempos;
+//         });
+//       }, 1000)
+//     );
+//   }
+//   return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
+// }, [simulacionActiva, tasaServicio, agentes,finalizarLlamada]);
+
