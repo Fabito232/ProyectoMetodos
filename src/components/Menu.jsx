@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import './Menu.css';
 
 const Menu = ({agregarOpcionMenu}) => {
@@ -9,17 +10,17 @@ const Menu = ({agregarOpcionMenu}) => {
     const openSound = document.getElementById('openSound');
 
     setMenuActive(!menuActive);
-    toggleSound.currentTime = 0; // Reset the audio to start from the beginning
+    toggleSound.currentTime = 0;
     toggleSound.play();
     if (!menuActive) {
-      openSound.currentTime = 0; // Reset the audio to start from the beginning
+      openSound.currentTime = 0;
       openSound.play();
     }
   };
 
   const playHoverSound = () => {
     const hoverSound = document.getElementById('hoverSound');
-    hoverSound.currentTime = 0; // Reset the audio to start from the beginning
+    hoverSound.currentTime = 0;
     hoverSound.play();
   };
 
@@ -29,6 +30,7 @@ const Menu = ({agregarOpcionMenu}) => {
 
   return (
     <div>
+      {/* MENÚ INICIAL */}
       <ul className={`menu ${menuActive ? 'active' : ''}`}>
         <div className="menuToggle" onClick={toggleMenu}>
           <ion-icon name="add-outline"></ion-icon>
@@ -49,12 +51,12 @@ const Menu = ({agregarOpcionMenu}) => {
           </a>
         </li>
         <li style={{ '--i': 6, '--clr': '#fe00f1' }}>
-          <a href="#" onMouseEnter={playHoverSound} onClick={() => handleClick(4)}>
+          <a href="/docs/Informe_Gerencial_Regional_Airlines.pdf" onMouseEnter={playHoverSound} onClick={() => handleClick(4)}>
           <ion-icon name="newspaper-outline"></ion-icon>
           </a>
         </li>
       </ul>
-
+      {/* AUDIO DEL MENÚ INICIAL */}
       <audio id="toggleSound">
         <source src="audio/close.mp3" type="audio/mpeg" />
         <source src="audio/close.ogg" type="audio/ogg" />
@@ -71,6 +73,10 @@ const Menu = ({agregarOpcionMenu}) => {
       </audio>
     </div>
   );
+};
+
+Menu.propTypes = {
+  agregarOpcionMenu: PropTypes.func.isRequired,
 };
 
 export default Menu;

@@ -1,16 +1,7 @@
-
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { Bar, Pie } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
+import React from 'react';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
 ChartJS.register(
   CategoryScale,
@@ -22,19 +13,8 @@ ChartJS.register(
   ArcElement
 );
 
-Graficos.propTypes = {
-    utilizacionPromedio: PropTypes.number,
-    probabilidadSistemaVacio: PropTypes.number,
-    promedioClienteCola: PropTypes.number,
-    promedioClienteSistema: PropTypes.number,
-    probabilidadClienteEspere: PropTypes.number,
-    tiempoPromedioCola: PropTypes.number,
-    tiempoPromedioSistema: PropTypes.number,
-
-}
-
 function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClienteCola, promedioClienteSistema, probabilidadClienteEspere, tiempoPromedioCola, tiempoPromedioSistema }) {
-  // Datos para el gráfico de Tiempos
+
   const dataBarTiempos = {
     labels: ['Tiempo promedio en cola (Wq)', 'Tiempo promedio en el sistema (W)'],
     datasets: [
@@ -54,7 +34,6 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
     ]
   };
 
-  // Datos para el gráfico de Promedios
   const dataBarPromedios = {
     labels: ['Número promedio de llamadas en cola (Lq)', 'Número promedio de llamadas en el sistema (L)'],
     datasets: [
@@ -74,7 +53,6 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
     ]
   };
 
-  // Datos para el gráfico de Probabilidades
   const dataBarProbabilidades = {
     labels: ['Probabilidad de que el sistema esté vacío', 'Probabilidad de que una persona tenga que esperar (Pw)'],
     datasets: [
@@ -93,13 +71,12 @@ function Graficos({ utilizacionPromedio, probabilidadSistemaVacio, promedioClien
       }
     ]
   };
-console.log(utilizacionPromedio)
-  // Datos para el gráfico de Pastel
+
   const dataPieUtilizacion = {
     labels: ['Utilización del sistema (%)', 'No utilizado'],
     datasets: [
       {
-        data: [utilizacionPromedio, (100 - utilizacionPromedio)],
+        data: [utilizacionPromedio, 100 - utilizacionPromedio],
         backgroundColor: [
           'rgba(75, 192, 192, 0.2)',
           'rgba(255, 99, 132, 0.2)'
@@ -174,5 +151,15 @@ console.log(utilizacionPromedio)
   </div>
   );
 }
+
+Graficos.propTypes = {
+  utilizacionPromedio: PropTypes.number,
+  probabilidadSistemaVacio: PropTypes.number,
+  promedioClienteCola: PropTypes.number,
+  promedioClienteSistema: PropTypes.number,
+  probabilidadClienteEspere: PropTypes.number,
+  tiempoPromedioCola: PropTypes.number,
+  tiempoPromedioSistema: PropTypes.number,
+};
 
 export default Graficos;
