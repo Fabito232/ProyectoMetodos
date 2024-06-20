@@ -4,8 +4,8 @@ export default {
     "./index.html",
     "./src/App.jsx",
     "./src/Persona.jsx",
-    "./src/components/ModalDatosEntrada.jsx"
-
+    "./src/components/ModalDatosEntrada.jsx",
+    "./src/components/SimulacionFinalizada.jsx",
   ],
   theme: {
     extend: {
