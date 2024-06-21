@@ -9,11 +9,7 @@ const ModalDatosEntrada = ({ isOpen, cerrar, agregarDatosEntrada }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Convertimos los valores de tasaLlegada y tasaServicio a números
     const parsedValue = name === 'servidores' ? value : Number(value);
-
-    // Validamos que solo 1, 2 o 3 puedan ser ingresados para servidores
     if (name === 'servidores' && !['1', '2', '3', ''].includes(value)) {
       return;
     }
