@@ -58,13 +58,8 @@ function App() {
     return db[indiceAleatorio];
   };
 
-  const nuevaLlamada = useCallback(() => {
-    let nuevaPersona = seleccionarPersonaAleatoria();
-
-    while (agentes.some(agente => agente.personaLlamada?.id === nuevaPersona.id)) {
-      nuevaPersona = seleccionarPersonaAleatoria();
-    }
-
+  const nuevaLlamada  = useCallback( () => {
+    const nuevaPersona = seleccionarPersonaAleatoria(); 
     const agenteLibre = agentes.findIndex(agente => agente.personaLlamada === null);
 
     if (agenteLibre !== -1) {
@@ -80,8 +75,7 @@ function App() {
       setCola(prevCola => [...prevCola, nuevaPersona]);
       setColaTiempos(prevTiempos => [...prevTiempos, 0]);
     }
-    console.log('Cola actualizada:', cola);
-  }, [agentes, cola]);
+  },[agentes]);
 
   const finalizarLlamada = useCallback((index) => {
     if (cola.length > 0) {
@@ -106,82 +100,66 @@ function App() {
         return nuevosTiempos;
       });
     }
-    console.log('Agente finalizó llamada:', agentes[index], 'Cola:', cola);
   }, [agentes, cola]);
 
   // USE EFFECTS
   // Hace las llamadas de los clientes
   useEffect(() => {
-    let intervaloLlamadas;
     if (simulacionActiva && tasaLlegada > 0) {
-      const intervalo = 60000 / tasaLlegada;
-      intervaloLlamadas = setInterval(() => {
-        nuevaLlamada();
-      }, intervalo);
+      setTimeout(nuevaLlamada, generarExponencial(tasaLlegada) * 60000);
     }
-    return () => {
-      clearInterval(intervaloLlamadas);
-    };
   }, [simulacionActiva, tasaLlegada, nuevaLlamada]);
 
   // Finaliza las llamadas y coloca el tiempo en llamada
   useEffect(() => {
     let intervalosCronometro = [];
     if (simulacionActiva && tasaServicio > 0) {
-      const intervaloServicio = 60000 / tasaServicio;
-      intervalosCronometro = agentes.map((_, index) => 
+      intervalosCronometro = agentes.map((_, index) =>
         setInterval(() => {
           setTiemposLlamada(prev => {
             const nuevosTiempos = [...prev];
-            if (nuevosTiempos[index] >= intervaloServicio / 1000) {
+            if (nuevosTiempos[index] >= (generarExponencial(tasaServicio) * 60)) {
               finalizarLlamada(index);
-              nuevosTiempos[index] = 0;
-            } else {
-              nuevosTiempos[index] += 1;
             }
+            nuevosTiempos[index] += 1;
             return nuevosTiempos;
           });
         }, 1000)
       );
     }
-    return () => {
-      intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
-    };
+    return () => intervalosCronometro.forEach(intervalo => clearInterval(intervalo));
   }, [simulacionActiva, tasaServicio, agentes, finalizarLlamada]);
 
   // Tiempo en cola de cada cliente
   useEffect(() => {
-    if (cola.length === 0) return;
-    const intervalId = setInterval(() => {
-      setColaTiempos((prevTiempos) => {
-        return prevTiempos.map((tiempo, index) => {
-          if (index < cola.length) {
-            return tiempo + 1;
-          }
-          return tiempo;
-        });
-      });
-    }, 1000);
-    return () => clearInterval(intervalId);
+    let intervaloCola;
+    if (cola.length > 0) {
+      intervaloCola = setInterval(() => {
+        setColaTiempos(prevTiempos => prevTiempos.map(t => t + 1));
+      }, 1000);
+    }
+    return () => clearInterval(intervaloCola);
   }, [cola]);
+
 
   //Controla el tiempo de simulación
   useEffect(() => {
-    if (!simulacionActiva) {
+    let intervaloSimulacion;
+    if (simulacionActiva) {
+      intervaloSimulacion = setInterval(() => {
+        setTiempoSimulacion(prev => {
+          if (prev >= duracionSimulacion) {
+            clearInterval(intervaloSimulacion);
+            setSimulacionActiva(false);
+            setSimulacionFinalizada(true);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
       setTiempoSimulacion(0);
-      return;
     }
-    const intervaloSimulacion = setInterval(() => {
-      setTiempoSimulacion((prev) => {
-        if (prev >= duracionSimulacion) {
-          clearInterval(intervaloSimulacion);
-          setSimulacionActiva(false);
-          setSimulacionFinalizada(true);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 1000);
     return () => clearInterval(intervaloSimulacion);
   }, [simulacionActiva, duracionSimulacion]);
 
@@ -334,7 +312,3 @@ function App() {
 }
 
 export default App;
-
-/*
-  
-  */

@@ -50,7 +50,7 @@ export function calcularW(tasaLlegada, tasaServicio, numServidores) {
 
 // Probabilidad de que un cliente tenga que esperar
 export function calcularPw(tasaLlegada, tasaServicio, numServidores) {
-    let Wp = (math.pow(tasaLlegada / tasaServicio, numServidores) / math.factorial(numServidores)) *
+    let Pw = (math.pow(tasaLlegada / tasaServicio, numServidores) / math.factorial(numServidores)) *
         (numServidores * tasaServicio) / (numServidores * tasaServicio - tasaLlegada) * calcularP0(tasaLlegada, tasaServicio, numServidores);
-    return 1 - Wp;
+    return Pw;
 }
