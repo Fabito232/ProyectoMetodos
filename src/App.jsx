@@ -141,7 +141,6 @@ function App() {
     return () => clearInterval(intervaloCola);
   }, [cola]);
 
-
   //Controla el tiempo de simulación
   useEffect(() => {
     let intervaloSimulacion;

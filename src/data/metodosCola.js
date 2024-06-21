@@ -9,15 +9,12 @@ export function calcularP(tasaLlegada, tasaServicio, numServidores) {
 // Probabilidad de que no haya clientes en el sistema
 export function calcularP0(tasaLlegada, tasaServicio, numServidores) {
     let sumatoria = 0;
-
     // Suma la serie para la probabilidad de 0 clientes en el sistema
     for (let n = 0; n < numServidores; n++) {
         sumatoria += math.pow(tasaLlegada / tasaServicio, n) / math.factorial(n);
     }
-
     // Último término de la fórmula para P0
     let ultimoTermino = (math.pow(tasaLlegada / tasaServicio, numServidores) / math.factorial(numServidores)) * (1 / (1 - calcularP(tasaLlegada, tasaServicio, numServidores)));
-
     // Calcula P0
     let p0 = 1 / (sumatoria + ultimoTermino);
     return p0;
