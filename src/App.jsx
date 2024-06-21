@@ -193,8 +193,8 @@ function App() {
       setProbabilidadClienteEspere(calcularPw(tasaLlegada, tasaServicio, numeroServidores) * 100);
       setPromedioClienteCola(calcularLq(tasaLlegada, tasaServicio, numeroServidores));
       setPromedioClienteSistema(calcularL(tasaLlegada, tasaServicio, numeroServidores));
-      setTiempoPromedioCola(calcularWq(tasaLlegada, tasaServicio, numeroServidores));
-      setTiempoPromedioSistema(calcularW(tasaLlegada, tasaServicio, numeroServidores));
+      setTiempoPromedioCola(calcularWq(tasaLlegada, tasaServicio, numeroServidores) * 60);
+      setTiempoPromedioSistema(calcularW(tasaLlegada, tasaServicio, numeroServidores) * 60);
     }
   }, [tasaLlegada, tasaServicio, numeroServidores]);
 
