@@ -9,13 +9,18 @@ const ModalDatosEntrada = ({ isOpen, cerrar, agregarDatosEntrada }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Validamos que solo 1, 2 o 3 puedan ser ingresados
+
+    // Convertimos los valores de tasaLlegada y tasaServicio a números
+    const parsedValue = name === 'servidores' ? value : Number(value);
+
+    // Validamos que solo 1, 2 o 3 puedan ser ingresados para servidores
     if (name === 'servidores' && !['1', '2', '3', ''].includes(value)) {
       return;
     }
+
     setDatosEntrada(prevState => ({
       ...prevState,
-      [name]: value
+      [name]: parsedValue
     }));
   };
 
@@ -28,12 +33,18 @@ const ModalDatosEntrada = ({ isOpen, cerrar, agregarDatosEntrada }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (datosEntrada.tasaLlegada > 0 && datosEntrada.tasaServicio > 0 && datosEntrada.servidores > 0 && datosEntrada.tasaLlegada < datosEntrada.tasaServicio) {
+    console.log('Datos Entrada:', datosEntrada);
+
+    if (datosEntrada.tasaLlegada <= 0 || datosEntrada.tasaServicio <= 0) {
+      alert('Todos los valores deben ser mayores a 0.');
+    } else if (![1, 2, 3].includes(Number(datosEntrada.servidores))) {
+      alert('El número de servidores debe ser 1, 2 o 3.');
+    } else if (datosEntrada.tasaLlegada >= datosEntrada.tasaServicio) {
+      alert('La tasa de servicio debe ser mayor que la tasa de llegada.');
+    } else {
       agregarDatosEntrada(datosEntrada);
       setDatosEntrada({ tiempoSimulacion: 60, tasaLlegada: 0, tasaServicio: 0, servidores: '' });
       cerrar();
-    } else {
-      alert('Todos los valores deben ser mayores a 0, el número de servidores debe ser 1, 2 o 3, y la tasa de servicio debe ser mayor que la tasa de llegada.');
     }
   };
 
