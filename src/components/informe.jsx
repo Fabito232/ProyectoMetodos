@@ -86,15 +86,30 @@ const InformeGerencial = ({ open, onClose, agentes, utilizacionPromedio, probabi
 
     return (
         <Modal isOpen={open} onRequestClose={onClose} ariaHideApp={false}>
-            <h2>Informe Gerencial</h2>
-            <button
-                className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center mt-2 mr-2"
-                onClick={onClose}
-            >
-                Cerrar
-            </button>
-            <div>
-                <p>Según los datos observados con {agentes} agente(s), nuestra recomendación es {obtenerRecomendacionGeneral()}, ya que el porcentaje de utilización promedio del sistema el ser {formatNumber(utilizacionPromedio)}% para las personas que deben de esperar en la cola y ser atendidas por un servidor. Otro punto a tener en cuenta es que la cantidad promedio de clientes en la cola es de {formatNumber(promedioClienteCola)} y el número promedio de clientes en el sistema es de {formatNumber(promedioClienteSistema)}, lo que quiere decir que el sistema es {promedioClienteSistema >= 2 ? 'ineficiente' : promedioClienteSistema >= 0.90 ? 'ideal' : 'excesivo'} para dar un buen servicio a todos los clientes. Al considerar el tiempo promedio en cola de {formatNumber(tiempoPromedioCola)} segundos y el intervalo promedio de {formatNumber(tiempoPromedioSistema)} segundos de tiempo que un cliente pasa en el sistema en general, resulta {tiempoPromedioCola >= 101 ? 'frustrante e inapropiado' : tiempoPromedioCola >= 6 ? 'en un intervalo en donde no es excesivo para la aerolínea ni molesto' : 'excesivo para la aerolínea, pero gratificante'} para la mayoría de las personas. Por último, al haber un {formatNumber(probabilidadSistemaVacio)}% de probabilidad de que el sistema esté vacío y un {formatNumber(probabilidadClienteEspere)}% de probabilidad de que un cliente que llega tenga que esperar indica que {probabilidadSistemaVacio <= 20 ? 'se usa demasiado el sistema, con lo cual, la cantidad de agentes es poca para la demanda de llamadas, lo que puede repercutir en la salud y eficiencia de los trabajadores' : probabilidadSistemaVacio <= 44 ? 'el sistema se encuentra en un estado óptimo por el hecho de que hay un equilibrio entre la cantidad de agentes y la demanda de llamadas que recibe la agencia' : 'no se usa mucho el sistema, con lo cual la cantidad de agentes es considerablemente grande para la demanda de llamadas y además, los empleados pueden estar mucho tiempo libre sin realizar trabajo efectivo'}.</p>
+            <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', lineHeight: '1.6', maxWidth: '600px', margin: '0 auto', textAlign: 'center', backgroundColor: '#e0f7fa', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
+                <h2 style={{ color: '#007BFF' }}>Informe Gerencial</h2>
+                <button
+                    style={{ 
+                        position: 'absolute', 
+                        top: '10px', 
+                        right: '10px', 
+                        backgroundColor: '#007BFF', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '10px 20px', 
+                        borderRadius: '5px', 
+                        cursor: 'pointer' 
+                    }}
+                    onClick={onClose}
+                >
+                    Cerrar
+                </button>
+                <div style={{ marginTop: '20px' }}>
+                    <p>Según los datos observados con <strong>{agentes} agente(s)</strong>, nuestra recomendación es <strong>{obtenerRecomendacionGeneral()}</strong>, ya que el porcentaje de utilización promedio del sistema es <strong>{formatNumber(utilizacionPromedio)}%</strong> para las personas que deben de esperar en la cola y ser atendidas por un servidor.</p>
+                    <p>Otro punto a tener en cuenta es que la cantidad promedio de clientes en la cola es de <strong>{formatNumber(promedioClienteCola)}</strong> y el número promedio de clientes en el sistema es de <strong>{formatNumber(promedioClienteSistema)}</strong>, lo que quiere decir que el sistema es <strong>{promedioClienteSistema >= 2 ? 'ineficiente' : promedioClienteSistema >= 0.90 ? 'ideal' : 'excesivo'}</strong> para dar un buen servicio a todos los clientes.</p>
+                    <p>Al considerar el tiempo promedio en cola de <strong>{formatNumber(tiempoPromedioCola)} segundos</strong> y el intervalo promedio de <strong>{formatNumber(tiempoPromedioSistema)} segundos</strong> de tiempo que un cliente pasa en el sistema en general, resulta <strong>{tiempoPromedioCola >= 101 ? 'frustrante e inapropiado' : tiempoPromedioCola >= 6 ? 'en un intervalo en donde no es excesivo para la aerolínea ni molesto' : 'excesivo para la aerolínea, pero gratificante'}</strong> para la mayoría de las personas.</p>
+                    <p>Por último, al haber un <strong>{formatNumber(probabilidadSistemaVacio)}%</strong> de probabilidad de que el sistema esté vacío y un <strong>{formatNumber(probabilidadClienteEspere)}%</strong> de probabilidad de que un cliente que llega tenga que esperar indica que <strong>{probabilidadSistemaVacio <= 20 ? 'se usa demasiado el sistema, con lo cual, la cantidad de agentes es poca para la demanda de llamadas, lo que puede repercutir en la salud y eficiencia de los trabajadores' : probabilidadSistemaVacio <= 44 ? 'el sistema se encuentra en un estado óptimo por el hecho de que hay un equilibrio entre la cantidad de agentes y la demanda de llamadas que recibe la agencia' : 'no se usa mucho el sistema, con lo cual la cantidad de agentes es considerablemente grande para la demanda de llamadas y además, los empleados pueden estar mucho tiempo libre sin realizar trabajo efectivo'}</strong>.</p>
+                </div>
             </div>
         </Modal>
     );
